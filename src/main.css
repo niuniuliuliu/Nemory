@@ -1,0 +1,38 @@
+#map {
+    height: 100%;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 62.5%
+}
+
+.markerInfo {
+    width: 200px;
+    margin: 20px 0 0 20px;
+}
+
+.markerInfo img {
+    border: 0;
+    width: 100%
+}
+
+.markerInfo footer {
+    width: 100%
+}
+
+.markerInfo footer h3 {
+    font-size: 1.8rem;
+    line-height: 1.2;
+    color: #222;
+    margin: 2px 0;
+    padding: 8px 0;
+}
+
+.markerInfo footer p {
+    margin: 0 0 2px;
+    font-size: 1.4rem;
+    color: #666;
+}
