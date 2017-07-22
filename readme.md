@@ -1,1 +1,1 @@
-# A photo viewer based on goole maps cluster and electron
+# A photo viewer based on google maps and electron
