@@ -1,13 +1,34 @@
 /**
  * Created by ck on 15/07/2017.
  */
-$(function() {
+function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);  //获取url中"?"符后的字符串并正则匹配
+    var context = "";
+    if (r != null)
+        context = r[2];
+    reg = null;
+    r = null;
+    return context == null || context == "" || context == "undefined" ? "" : context;
+}
+$(function () {
+    //load photos
+    var categoryName = getQueryString('category');
+    var category = CATEGORY[categoryName];
+    if (category) {
+        category.photos.forEach(function (photo) {
+            $('#content').append(`<img src="../local/photos/${category.path}${photo.name}" alt="../local/photos/${category.path}${photo.name}" title="${photo.des}"/>`);
+        });
+        $('#content').append('<div class="placeholder"></div>');
+    }
+
+
     /* this is the index of the last clicked picture */
     var current = -1;
     /* number of pictures */
     var totalpictures = $('#content img').size();
     /* speed to animate the panel and the thumbs wrapper */
-    var speed 	= 500;
+    var speed = 500;
 
     /* show the content */
     $('#content').show();
@@ -16,7 +37,7 @@ $(function() {
      when the user resizes the browser window,
      the size of the picture being viewed is recalculated;
      */
-    $(window).bind('resize', function() {
+    $(window).bind('resize', function () {
         var $picture = $('#wrapper').find('img');
         resize($picture);
     });
@@ -29,23 +50,23 @@ $(function() {
      the "alt" attribute of the thumb image
      */
     $('#content > img').hover(function () {
-        var $this   = $(this);
-        $this.stop().animate({'opacity':'1.0'},200);
-    },function () {
-        var $this   = $(this);
-        $this.stop().animate({'opacity':'0.4'},200);
-    }).bind('click',function(){
-        var $this   = $(this);
+        var $this = $(this);
+        $this.stop().animate({'opacity': '1.0'}, 200);
+    }, function () {
+        var $this = $(this);
+        $this.stop().animate({'opacity': '0.4'}, 200);
+    }).bind('click', function () {
+        var $this = $(this);
 
         /* shows the loading icon */
         $('#loading').show();
 
-        $('<img/>').load(function(){
+        $('<img/>').load(function () {
             $('#loading').hide();
 
-            if($('#wrapper').find('img').length) return;
-            current 	= $this.index();
-            var $theImage   = $(this);
+            if ($('#wrapper').find('img').length) return;
+            current = $this.index();
+            var $theImage = $(this);
             /*
              After it's loaded we hide the loading icon
              and resize the image, given the window size;
@@ -59,14 +80,14 @@ $(function() {
             $theImage.fadeIn(800);
 
             /* and finally slide up the panel */
-            $('#panel').animate({'height':'100%'},speed,function(){
+            $('#panel').animate({'height': '100%'}, speed, function () {
                 /*
                  if the picture has a description,
                  it's stored in the title attribute of the thumb;
                  show it if it's not empty
                  */
                 var title = $this.attr('title');
-                if(title != '')
+                if (title != '')
                     $('#description').html(title).show();
                 else
                     $('#description').empty().hide();
@@ -79,11 +100,11 @@ $(function() {
                  don't show the "next button"
                  for the slideshow navigation
                  */
-                if(current==0)
+                if (current == 0)
                     $('#prev').hide();
                 else
                     $('#prev').fadeIn();
-                if(current==parseInt(totalpictures-1))
+                if (current == parseInt(totalpictures - 1))
                     $('#next').hide();
                 else
                     $('#next').fadeIn();
@@ -92,7 +113,7 @@ $(function() {
                  to 0, because we want to slide it up afterwards,
                  when the user clicks the large image
                  */
-                $('#thumbsWrapper').css({'z-index':'0','height':'0px'});
+                $('#thumbsWrapper').css({'z-index': '0', 'height': '0px'});
             });
         }).attr('src', $this.attr('alt'));
     });
@@ -103,16 +124,16 @@ $(function() {
      and reset the panel (like it was initially);
      this includes removing the large image element
      */
-    $('#wrapper > img').live('click',function(){
+    $('#wrapper > img').live('click', function () {
         $this = $(this);
         $('#description').empty().hide();
 
-        $('#thumbsWrapper').css('z-index','10')
+        $('#thumbsWrapper').css('z-index', '10')
             .stop()
-            .animate({'height':'100%'},speed,function(){
+            .animate({'height': '100%'}, speed, function () {
                 var $theWrapper = $(this);
-                $('#panel').css('height','0px');
-                $theWrapper.css('z-index','0');
+                $('#panel').css('height', '0px');
+                $theWrapper.css('z-index', '0');
                 /*
                  remove the large image element
                  and the navigation buttons
@@ -130,37 +151,37 @@ $(function() {
      we know the index of the current picture (current),
      so we can easily get to the neighbour:
      */
-    $('#next').bind('click',function(){
-        var $this           = $(this);
-        var $nextimage 		= $('#content img:nth-child('+parseInt(current+2)+')');
-        navigate($nextimage,'right');
+    $('#next').bind('click', function () {
+        var $this = $(this);
+        var $nextimage = $('#content img:nth-child(' + parseInt(current + 2) + ')');
+        navigate($nextimage, 'right');
     });
-    $('#prev').bind('click',function(){
-        var $this           = $(this);
-        var $previmage 		= $('#content img:nth-child('+parseInt(current)+')');
-        navigate($previmage,'left');
+    $('#prev').bind('click', function () {
+        var $this = $(this);
+        var $previmage = $('#content img:nth-child(' + parseInt(current) + ')');
+        navigate($previmage, 'left');
     });
 
     /*
      given the next or previous image to show,
      and the direction, it loads a new image in the panel.
      */
-    function navigate($nextimage,dir){
+    function navigate($nextimage, dir) {
         /*
          if we are at the end/beginning
          then there's no next/previous
          */
-        if(dir=='left' && current==0)
+        if (dir == 'left' && current == 0)
             return;
-        if(dir=='right' && current==parseInt(totalpictures-1))
+        if (dir == 'right' && current == parseInt(totalpictures - 1))
             return;
         $('#loading').show();
-        $('<img/>').load(function(){
+        $('<img/>').load(function () {
             var $theImage = $(this);
             $('#loading').hide();
             $('#description').empty().fadeOut();
 
-            $('#wrapper img').stop().fadeOut(500,function(){
+            $('#wrapper img').stop().fadeOut(500, function () {
                 var $this = $(this);
 
                 $this.remove();
@@ -170,17 +191,17 @@ $(function() {
                 $theImage.stop().fadeIn(800);
 
                 var title = $nextimage.attr('title');
-                if(title != ''){
+                if (title != '') {
                     $('#description').html(title).show();
                 }
                 else
                     $('#description').empty().hide();
 
-                if(current==0)
+                if (current == 0)
                     $('#prev').hide();
                 else
                     $('#prev').show();
-                if(current==parseInt(totalpictures-1))
+                if (current == parseInt(totalpictures - 1))
                     $('#next').hide();
                 else
                     $('#next').show();
@@ -188,9 +209,9 @@ $(function() {
             /*
              increase or decrease the current variable
              */
-            if(dir=='right')
+            if (dir == 'right')
                 ++current;
-            else if(dir=='left')
+            else if (dir == 'left')
                 --current;
         }).attr('src', $nextimage.attr('alt'));
     }
@@ -199,44 +220,44 @@ $(function() {
      resizes an image given the window size,
      considering the margin values
      */
-    function resize($image){
-        var windowH      = $(window).height()-100;
-        var windowW      = $(window).width()-80;
-        var theImage     = new Image();
-        theImage.src     = $image.attr("src");
-        var imgwidth     = theImage.width;
-        var imgheight    = theImage.height;
+    function resize($image) {
+        var windowH = $(window).height() - 100;
+        var windowW = $(window).width() - 80;
+        var theImage = new Image();
+        theImage.src = $image.attr("src");
+        var imgwidth = theImage.width;
+        var imgheight = theImage.height;
 
-        if((imgwidth > windowW)||(imgheight > windowH)){
-            if(imgwidth > imgheight){
+        if ((imgwidth > windowW) || (imgheight > windowH)) {
+            if (imgwidth > imgheight) {
                 var newwidth = windowW;
                 var ratio = imgwidth / windowW;
                 var newheight = imgheight / ratio;
                 theImage.height = newheight;
-                theImage.width= newwidth;
-                if(newheight>windowH){
+                theImage.width = newwidth;
+                if (newheight > windowH) {
                     var newnewheight = windowH;
-                    var newratio = newheight/windowH;
-                    var newnewwidth =newwidth/newratio;
+                    var newratio = newheight / windowH;
+                    var newnewwidth = newwidth / newratio;
                     theImage.width = newnewwidth;
-                    theImage.height= newnewheight;
+                    theImage.height = newnewheight;
                 }
             }
-            else{
+            else {
                 var newheight = windowH;
                 var ratio = imgheight / windowH;
                 var newwidth = imgwidth / ratio;
                 theImage.height = newheight;
-                theImage.width= newwidth;
-                if(newwidth>windowW){
+                theImage.width = newwidth;
+                if (newwidth > windowW) {
                     var newnewwidth = windowW;
-                    var newratio = newwidth/windowW;
-                    var newnewheight =newheight/newratio;
+                    var newratio = newwidth / windowW;
+                    var newnewheight = newheight / newratio;
                     theImage.height = newnewheight;
-                    theImage.width= newnewwidth;
+                    theImage.width = newnewwidth;
                 }
             }
         }
-        $image.css({'width':theImage.width+'px','height':theImage.height+'px'});
+        $image.css({'width': theImage.width + 'px', 'height': theImage.height + 'px'});
     }
 });

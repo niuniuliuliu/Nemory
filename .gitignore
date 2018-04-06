@@ -1,1 +1,12 @@
 local
+
+.DS_Store
+www/assets/*
+www/build/*
+platforms/*
+plugins/*
+.idea
+node_modules
+*.log
+workspace.xml
+build/*
